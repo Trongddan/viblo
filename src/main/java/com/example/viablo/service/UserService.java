@@ -16,6 +16,9 @@ public class UserService {
     public Optional<User> findUserByEmail(String email){
         return userRespository.findUserByEmail(email);
     }
+    public Optional<User> getUserById(int id){
+        return userRespository.findById(id);
+    }
     public void registerUser(User user){
         userRespository.save(user);
     }

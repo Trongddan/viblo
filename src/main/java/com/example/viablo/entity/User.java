@@ -1,6 +1,10 @@
 package com.example.viablo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,7 +12,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import java.util.*;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
@@ -24,6 +29,21 @@ public class User implements UserDetails {
     private String avatar;
     @Column(nullable = false,length = 100,unique = true)
     private String email;
+    @OneToMany(mappedBy = "user")
+    @JsonIgnore
+    private List<Comment> comments;
+
+    @OneToMany(mappedBy = "user")
+    @JsonIgnore
+    private List<Post> posts;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JsonIgnoreProperties("users")
+    @JoinTable(
+            name = "user_follow", joinColumns = @JoinColumn(name="user_id"), inverseJoinColumns = @JoinColumn(name="follow_id")
+    )
+    private Set<User> users;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_role", joinColumns = @JoinColumn(name="user_id"), inverseJoinColumns = @JoinColumn(name="role_id")
@@ -81,5 +101,8 @@ public class User implements UserDetails {
     }
     public void addRole(Role role){
         roles.add(role);
+    }
+    public void addFollow(User user){
+        this.users.add(user);
     }
 }

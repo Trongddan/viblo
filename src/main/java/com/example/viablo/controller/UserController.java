@@ -54,7 +54,7 @@ public class UserController {
             User user = (User) authentication.getPrincipal();
             System.out.println("alo alo "+user.getAvatar() );
             String token = jwtTokenUtils.generateToken(user);
-            UserResponse userResponse = new UserResponse(user.getUsername(),user.getAvatar(), user.getEmail(), token, user.getRoles());
+            UserResponse userResponse = new UserResponse(user.getId(),user.getUsername(),user.getAvatar(), user.getEmail(), token, user.getRoles());
             return ResponseEntity.status(HttpStatus.OK).body(userResponse);
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -111,6 +111,38 @@ public class UserController {
 
         }
     }
+
+    @PostMapping("/api/follow/{uId}/{fId}")
+    public ResponseEntity<?> followUser(@PathVariable int uId,@PathVariable int fId){
+        Optional<User> userID = userService.getUserById(uId);
+        Optional<User> followedUser = userService.getUserById(fId);
+        if(userID.isPresent() && followedUser.isPresent()){
+            User user = userID.get();
+            user.addFollow(followedUser.get());
+            userService.registerUser(user);
+            return ResponseEntity.status(HttpStatus.OK).body(new ObjResponse("ok","thanh cong",""));
+        }else {
+            return ResponseEntity.status(HttpStatus.OK).body(new ObjResponse("ok","that bai",""));
+
+        }
+    }
+
+    @GetMapping("/api/u/{id}")
+    public ResponseEntity<?> getUser(@PathVariable int id){
+        Optional<User> user = userService.getUserById(id);
+        if(user.isPresent()){
+            User user1 = user.get();
+            return ResponseEntity.status(HttpStatus.OK).body(new ObjResponse("ok","thanh cong",user1));
+        }else {
+            return ResponseEntity.status(HttpStatus.OK).body(new ObjResponse("ok","that bai",""));
+
+        }
+    }
+
+//    @GetMapping("/api/checkfollow/uId/fId")
+//    public ResponseEntity<?> checkFollow(@PathVariable int uId,@PathVariable int fId){
+//
+//    }
 
 
 }
